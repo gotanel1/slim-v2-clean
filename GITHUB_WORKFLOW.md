@@ -518,53 +518,103 @@ git push origin main --force-with-lease
 
 ## Quick Reference
 
+### คำสั่งพื้นฐาน
 | คำสั่ง | คำอธิบาย |
 |--------|----------|
+| `git init` | เริ่มต้น Git repository |
+| `git clone <url>` | Clone repository |
 | `git status` | ดูสถานะไฟล์ |
 | `git add .` | เพิ่มไฟล์ทั้งหมด |
+| `git add <file>` | เพิ่มไฟล์เฉพาะ |
 | `git commit -m "msg"` | Commit พร้อมข้อความ |
 | `git push` | Push ขึ้น GitHub |
 | `git pull` | ดึงการเปลี่ยนแปลงล่าสุด |
-| `git clone <url>` | Clone repository |
-| `git branch` | ดู branch ทั้งหมด |
-| `git checkout -b <name>` | สร้าง branch ใหม่ |
-| `git merge <branch>` | Merge branch |
 | `git log` | ดู commit history |
+| `git log --oneline` | ดู history แบบย่อ |
 
-## การเริ่มต้นใช้งาน Git กับ Repository
+### Branch Commands
+| คำสั่ง | คำอธิบาย |
+|--------|----------|
+| `git branch` | ดู branch ทั้งหมด |
+| `git branch <name>` | สร้าง branch ใหม่ |
+| `git checkout <branch>` | เปลี่ยน branch |
+| `git checkout -b <name>` | สร้างและเปลี่ยน branch |
+| `git switch <branch>` | เปลี่ยน branch (คำสั่งใหม่) |
+| `git switch -c <name>` | สร้างและเปลี่ยน branch |
+| `git merge <branch>` | Merge branch |
+| `git branch -d <name>` | ลบ branch |
+| `git branch -D <name>` | บังคับลบ branch |
 
-### ตั้งค่า Git ครั้งแรก
+### Remote Commands
+| คำสั่ง | คำอธิบาย |
+|--------|----------|
+| `git remote -v` | ดู remote repositories |
+| `git remote add <name> <url>` | เพิ่ม remote |
+| `git remote remove <name>` | ลบ remote |
+| `git fetch` | ดึงข้อมูลจาก remote |
+| `git push origin <branch>` | Push ไป branch เฉพาะ |
+| `git push -u origin <branch>` | Push และ set upstream |
+| `git push --all` | Push ทุก branch |
+| `git push --tags` | Push ทุก tag |
+
+### Undo Commands
+| คำสั่ง | คำอธิบาย |
+|--------|----------|
+| `git checkout -- <file>` | ย้อนกลับไฟล์ที่ยังไม่ add |
+| `git reset HEAD <file>` | Unstage ไฟล์ |
+| `git reset --soft HEAD~1` | ย้อน commit (เก็บไฟล์) |
+| `git reset --hard HEAD~1` | ย้อน commit (ลบไฟล์) |
+| `git revert <commit>` | สร้าง commit ใหม่ที่ย้อนกลับ |
+| `git commit --amend` | แก้ไข commit ล่าสุด |
+| `git stash` | บันทึกงานชั่วคราว |
+| `git stash pop` | นำงานที่บันทึกกลับมา |
+
+### Information Commands
+| คำสั่ง | คำอธิบาย |
+|--------|----------|
+| `git diff` | ดูการเปลี่ยนแปลง |
+| `git diff --staged` | ดูไฟล์ที่ staged |
+| `git diff <branch1> <branch2>` | เปรียบเทียบ branch |
+| `git show <commit>` | ดูรายละเอียด commit |
+| `git blame <file>` | ดูว่าใครแก้แต่ละบรรทัด |
+| `git log --graph` | ดู log แบบ graph |
+| `git log --author="name"` | ดู log ของคนเฉพาะ |
+
+---
+
+## Git Cheat Sheet ภาษาไทย
+
+### 📝 ขั้นตอนการทำงานพื้นฐาน
 ```bash
-# ตั้งค่าชื่อและอีเมล
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
-
-# ตรวจสอบการตั้งค่า
-git config --list
+git status          # ดูสถานะ
+git add .           # เพิ่มไฟล์ทั้งหมด
+git commit -m "msg" # บันทึก
+git push            # อัพโหลด
 ```
 
-### สร้าง Repository ใหม่
+### 🌿 จัดการ Branch
 ```bash
-# เริ่มต้น Git ในโปรเจค
-git init
-
-# เพิ่ม Remote Repository
-git remote add origin https://github.com/username/repository.git
-
-# ตรวจสอบ Remote
-git remote -v
+git branch                  # ดู branch
+git checkout -b feature/x   # สร้าง branch ใหม่
+git checkout main           # กลับไป main
+git merge feature/x         # รวม branch
+git branch -d feature/x     # ลบ branch
 ```
 
-### Clone Repository ที่มีอยู่แล้ว
+### ⏮️ ย้อนกลับ
 ```bash
-# Clone ด้วย HTTPS
-git clone https://github.com/username/repository.git
+git checkout -- file.txt    # ยกเลิกการแก้ไข
+git reset HEAD file.txt     # นำออกจาก staging
+git reset --soft HEAD~1     # ยกเลิก commit (เก็บไฟล์)
+git reset --hard HEAD~1     # ยกเลิก commit (ลบไฟล์)
+```
 
-# Clone ด้วย SSH
-git clone git@github.com:username/repository.git
-
-# Clone และเปลี่ยนชื่อโฟลเดอร์
-git clone https://github.com/username/repository.git my-project
+### 🔄 ซิงค์กับ Remote
+```bash
+git fetch          # ดึงข้อมูลล่าสุด
+git pull           # ดึงและ merge
+git push           # ส่งขึ้น GitHub
+git push --force   # บังคับส่ง (ระวัง!)
 ```
 
 ---
