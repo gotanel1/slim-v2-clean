@@ -38,8 +38,15 @@ $app = require __DIR__ . '/../bootstrap/app.php';
 // Load dependencies
 require __DIR__ . '/../bootstrap/dependencies.php';
 
-// Add CORS middleware (if needed)
+// ============================================
+// Add Middleware (Order matters!)
+// ============================================
+
+// 1. CORS Middleware (first - handles preflight)
 $app->add(new \App\Infrastructure\Http\Middleware\CorsMiddleware());
+
+// 2. Error Handler Middleware (second - wraps all routes)
+$app->add(new \App\Infrastructure\Http\Middleware\ErrorHandlerMiddleware());
 
 // Load routes
 require __DIR__ . '/../routes/api.php';

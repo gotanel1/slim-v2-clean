@@ -36,31 +36,64 @@ try {
 }
 
 // ============================================
-// Error Handlers
+// Error Handlers (Global - Last Resort)
 // ============================================
 
 $app->notFound(function () use ($app) {
     $app->response->setStatus(404);
     echo json_encode([
-        'error' => '404 Not Found',
-        'path' => $app->request->getPathInfo(),
-        'method' => $app->request->getMethod(),
-        'hint' => 'Try: ' . BASE_PATH . '/api/health'
+        'error' => [
+            'code' => 'NOT_FOUND',
+            'message' => '404 Not Found',
+            'path' => $app->request->getPathInfo(),
+            'method' => $app->request->getMethod(),
+            'status' => 404,
+            'hint' => 'Try: ' . BASE_PATH . '/api/health'
+        ]
     ], JSON_PRETTY_PRINT);
 });
 
 $app->error(function (Exception $e) use ($app) {
-    $app->response->setStatus(500);
+    // Log the error
+    error_log(sprintf(
+        "[%s] %s: %s in %s:%d\nStack trace:\n%s",
+        date('Y-m-d H:i:s'),
+        get_class($e),
+        $e->getMessage(),
+        $e->getFile(),
+        $e->getLine(),
+        $e->getTraceAsString()
+    ));
+    
+    // Determine status code based on exception type
+    $statusCode = 500;
+    $errorCode = 'INTERNAL_SERVER_ERROR';
+    
+    if ($e instanceof \Illuminate\Database\QueryException) {
+        $statusCode = 503;
+        $errorCode = 'DATABASE_ERROR';
+    }
+    
+    $app->response->setStatus($statusCode);
     
     $error = [
-        'error' => 'Server Error',
-        'message' => $e->getMessage(),
+        'error' => [
+            'code' => $errorCode,
+            'message' => getenv('APP_DEBUG') === 'true' 
+                ? $e->getMessage() 
+                : 'An unexpected error occurred',
+            'status' => $statusCode
+        ]
     ];
     
+    // Only show details in debug mode
     if (getenv('APP_DEBUG') === 'true') {
-        $error['file'] = $e->getFile();
-        $error['line'] = $e->getLine();
-        $error['trace'] = $e->getTraceAsString();
+        $error['error']['details'] = [
+            'exception' => get_class($e),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => explode("\n", $e->getTraceAsString())
+        ];
     }
     
     echo json_encode($error, JSON_PRETTY_PRINT);
