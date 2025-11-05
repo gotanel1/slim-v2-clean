@@ -78,3 +78,7 @@ yarn.lock
 # VS Code
 .vscode/
 *.code-workspace
+
+
+#Temp
+temp/*
