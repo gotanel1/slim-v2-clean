@@ -141,7 +141,18 @@ $app->group('/auth', function () use ($app) {
     // Get Profile (Protected)
     $app->get('/me', function () use ($app) {
         try {
-            $authHeader = $app->request->headers->get('Authorization');
+            $headers = getallheaders();
+
+            // ตรวจสอบ Authorization header
+            if (!isset($headers['Authorization'])) {
+                return $this->jsonResponse(['error' => 'Authorization header missing'], 401);
+            }
+
+            // ดึง token จาก header
+            $authHeader = $headers['Authorization'];
+            if (!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+                return $this->jsonResponse(['error' => 'Invalid Authorization format'], 401);
+            }
             
             if (!$authHeader) {
                 $app->response->setStatus(401);
