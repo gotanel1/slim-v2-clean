@@ -5,15 +5,16 @@ namespace App\Application\UseCases\Auth;
 use App\Application\DTOs\RegisterRequest;
 use App\Domain\Entities\User;
 use App\Domain\Repositories\UserRepositoryInterface;
+use App\Infrastructure\Auth\PasswordHasher;
 
 class RegisterUseCase
 {
     private UserRepositoryInterface $userRepository;
-    private $passwordHasher;
+    private PasswordHasher $passwordHasher;
 
     public function __construct(
         UserRepositoryInterface $userRepository,
-        $passwordHasher
+        PasswordHasher $passwordHasher
     ) {
         $this->userRepository = $userRepository;
         $this->passwordHasher = $passwordHasher;

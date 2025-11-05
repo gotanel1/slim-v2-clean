@@ -5,6 +5,8 @@ namespace App\Application\UseCases\Auth;
 use App\Application\DTOs\LoginRequest;
 use App\Domain\Repositories\UserRepositoryInterface;
 use App\Domain\Exceptions\InvalidCredentialsException;
+use App\Infrastructure\Auth\PasswordHasher;
+use App\Infrastructure\Auth\JwtTokenService;
 
 /**
  * Login Use Case
@@ -13,13 +15,13 @@ use App\Domain\Exceptions\InvalidCredentialsException;
 class LoginUseCase
 {
     private UserRepositoryInterface $userRepository;
-    private $passwordHasher;
-    private $tokenService;
+    private PasswordHasher $passwordHasher;
+    private JwtTokenService $tokenService;
 
     public function __construct(
         UserRepositoryInterface $userRepository,
-        $passwordHasher,
-        $tokenService
+        PasswordHasher $passwordHasher,
+        JwtTokenService $tokenService
     ) {
         $this->userRepository = $userRepository;
         $this->passwordHasher = $passwordHasher;
