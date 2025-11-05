@@ -5,18 +5,20 @@ namespace App\Infrastructure\Http\Middleware;
 /**
  * Error Handler Middleware
  * Wraps route execution and converts exceptions to proper HTTP responses
+ * 
+ * For Slim 2.x - extends \Slim\Middleware
  */
-class ErrorHandlerMiddleware
+class ErrorHandlerMiddleware extends \Slim\Middleware
 {
-    public function __invoke($request, $response, $next)
+    public function call()
     {
         try {
-            // Execute route
-            return $next($request, $response);
+            // Execute next middleware/route
+            $this->next->call();
             
         } catch (\App\Domain\Exceptions\InvalidCredentialsException $e) {
             // 401 Unauthorized
-            return $this->jsonResponse($response, [
+            $this->jsonResponse([
                 'error' => [
                     'code' => 'INVALID_CREDENTIALS',
                     'message' => $e->getMessage(),
@@ -26,7 +28,7 @@ class ErrorHandlerMiddleware
             
         } catch (\App\Domain\Exceptions\UserNotFoundException $e) {
             // 404 Not Found
-            return $this->jsonResponse($response, [
+            $this->jsonResponse([
                 'error' => [
                     'code' => 'USER_NOT_FOUND',
                     'message' => $e->getMessage(),
@@ -36,7 +38,7 @@ class ErrorHandlerMiddleware
             
         } catch (\DomainException $e) {
             // 400 Bad Request
-            return $this->jsonResponse($response, [
+            $this->jsonResponse([
                 'error' => [
                     'code' => 'DOMAIN_ERROR',
                     'message' => $e->getMessage(),
@@ -46,7 +48,7 @@ class ErrorHandlerMiddleware
             
         } catch (\InvalidArgumentException $e) {
             // 422 Unprocessable Entity
-            return $this->jsonResponse($response, [
+            $this->jsonResponse([
                 'error' => [
                     'code' => 'INVALID_ARGUMENT',
                     'message' => $e->getMessage(),
@@ -60,11 +62,10 @@ class ErrorHandlerMiddleware
         }
     }
     
-    private function jsonResponse($response, array $data, int $status)
+    private function jsonResponse(array $data, int $status)
     {
-        $response->headers->set('Content-Type', 'application/json');
-        $response->setStatus($status);
-        $response->setBody(json_encode($data, JSON_PRETTY_PRINT));
-        return $response;
+        $this->app->response->headers->set('Content-Type', 'application/json');
+        $this->app->response->setStatus($status);
+        $this->app->response->setBody(json_encode($data, JSON_PRETTY_PRINT));
     }
 }
